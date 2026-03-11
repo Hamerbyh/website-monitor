@@ -1,0 +1,142 @@
+{
+  "hero": {
+    "eyebrow": "Website Operations Dashboard",
+    "titleLines": ["先看问题，", "再看趋势。"],
+    "description": "WebMonitor 面向多站点长期运维场景，首页优先告诉你今天该处理什么，而不是把数据堆到第一屏。当前界面为 MVP 演示版，后续将接入 Drizzle、PostgreSQL、Better Auth 与定时巡检任务。",
+    "badge": "Build in Public",
+    "dateLabel": "11 Mar 2026"
+  },
+  "strategyCards": [
+    {
+      "eyebrow": "监控策略",
+      "title": "Action-Driven Dashboard",
+      "description": "Critical 和 Warning 事项永远排在流量图表前面。"
+    },
+    {
+      "eyebrow": "数据设计",
+      "title": "Database First",
+      "description": "Issues、站点配置、布局和规则优先由数据库驱动。"
+    },
+    {
+      "eyebrow": "部署形态",
+      "title": "Dokploy + Dockerfile",
+      "description": "前期按单 VPS 低成本部署，持续迭代上线。",
+      "accent": true
+    }
+  ],
+  "statusPanel": {
+    "eyebrow": "今日状态",
+    "title": "有 2 个站点需要立刻处理。"
+  },
+  "issues": [
+    {
+      "level": "Critical",
+      "site": "docs.pixelraft.dev",
+      "title": "HTTPS 证书将在 2 天后过期",
+      "detail": "最近一次握手成功，但证书有效期只剩 43 小时。"
+    },
+    {
+      "level": "Warning",
+      "site": "api.hollowlab.io",
+      "title": "最近 24h 可用率下降到 97.2%",
+      "detail": "过去 6 次检测中有 2 次响应超时，平均耗时 2.4s。"
+    },
+    {
+      "level": "Notice",
+      "site": "atlasfolio.com",
+      "title": "域名将在 18 天后到期",
+      "detail": "建议提前完成续费，避免影响长期运行的网站。"
+    }
+  ],
+  "integrations": {
+    "eyebrow": "预留集成",
+    "items": [
+      "Google Search Console",
+      "Google Analytics",
+      "自定义 Ping / SSL 检测任务"
+    ]
+  },
+  "metrics": [
+    {
+      "label": "总站点数",
+      "value": "18",
+      "note": "其中 14 个为生产环境"
+    },
+    {
+      "label": "健康站点",
+      "value": "15",
+      "note": "过去 24h 内稳定可访问"
+    },
+    {
+      "label": "待处理 Issues",
+      "value": "6",
+      "note": "2 个 Critical / 3 个 Warning"
+    },
+    {
+      "label": "平均响应时间",
+      "value": "482ms",
+      "note": "较昨日下降 11%"
+    }
+  ],
+  "watchlist": {
+    "eyebrow": "Site Watchlist",
+    "title": "当前站点状态",
+    "description": "第一版首页不追求铺满全部细节，只保留最关键的站点状态、响应时间和 SSL / DNS 结果，方便快速定位问题。"
+  },
+  "sites": [
+    {
+      "name": "pixelraft.dev",
+      "status": "healthy",
+      "uptime": "99.98%",
+      "response": "214ms",
+      "ssl": "还剩 62 天",
+      "dns": "A / AAAA 正常"
+    },
+    {
+      "name": "api.hollowlab.io",
+      "status": "degraded",
+      "uptime": "97.2%",
+      "response": "2.4s",
+      "ssl": "还剩 121 天",
+      "dns": "解析正常"
+    },
+    {
+      "name": "atlasfolio.com",
+      "status": "warning",
+      "uptime": "99.1%",
+      "response": "531ms",
+      "ssl": "还剩 19 天",
+      "dns": "WHOIS 待续费"
+    },
+    {
+      "name": "northmesh.app",
+      "status": "down",
+      "uptime": "82.4%",
+      "response": "timeout",
+      "ssl": "无法获取",
+      "dns": "DNS 解析失败"
+    }
+  ],
+  "trendPanel": {
+    "eyebrow": "Trend Reserve",
+    "title": "流量 / 趋势模块预留",
+    "tag": "Placeholder"
+  },
+  "trendBars": [
+    { "day": "Mon", "value": 64 },
+    { "day": "Tue", "value": 48 },
+    { "day": "Wed", "value": 72 },
+    { "day": "Thu", "value": 55 },
+    { "day": "Fri", "value": 88 },
+    { "day": "Sat", "value": 67 },
+    { "day": "Sun", "value": 74 }
+  ],
+  "roadmapPanel": {
+    "eyebrow": "Next Build Target",
+    "title": "接下来可以直接开始接真实数据层。",
+    "items": [
+      "优先顺序建议：Drizzle Schema、PostgreSQL 连接、站点表、检测任务、Better Auth。",
+      "这样首页就能从静态演示切到真实监控数据，而不是重复重写 UI。"
+    ]
+  }
+}
