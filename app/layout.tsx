@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, IBM_Plex_Mono, Manrope } from "next/font/google";
+import {
+  Cormorant_Garamond,
+  IBM_Plex_Mono,
+  Manrope,
+  Rajdhani,
+} from "next/font/google";
+import authContent from "@/content/auth.json";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -19,10 +25,15 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "WebMonitor",
-  description:
-    "A website operations dashboard for monitoring uptime, SSL, DNS, domains, and actionable issues.",
+  title: authContent.metadata.title,
+  description: authContent.metadata.description,
 };
 
 export default function RootLayout({
@@ -33,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body
-        className={`${manrope.variable} ${cormorant.variable} ${ibmPlexMono.variable}`}
+        className={`${manrope.variable} ${cormorant.variable} ${ibmPlexMono.variable} ${rajdhani.variable}`}
       >
         {children}
       </body>

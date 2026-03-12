@@ -1,0 +1,35 @@
+{
+  "sidebar": {
+    "workspaceLabel": "Workspace",
+    "expandAriaLabel": "Expand sidebar",
+    "collapseAriaLabel": "Collapse sidebar",
+    "closeSidebarAriaLabel": "Close sidebar",
+    "closeOverlayAriaLabel": "Close sidebar overlay",
+    "openSidebarAriaLabel": "Open sidebar"
+  },
+  "header": {
+    "productName": "WebMonitor",
+    "productDescription": "Personal website ops dashboard",
+    "workspaceStatus": "Local workspace"
+  },
+  "siteStatusLabels": {
+    "healthy": "Healthy",
+    "degraded": "Degraded",
+    "warning": "Warning",
+    "down": "Down",
+    "unknown": "Unknown"
+  },
+  "siteTable": {
+    "uptime": "Uptime",
+    "response": "Response",
+    "ssl": "SSL",
+    "dnsDomain": "DNS / Domain"
+  },
+  "siteStatusBadges": {
+    "healthy": "正常",
+    "degraded": "波动",
+    "warning": "告警",
+    "down": "故障",
+    "unknown": "未知"
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "common": {
+    "notCheckedYet": "未检测",
+    "noError": "无错误",
+    "noNotes": "无备注",
+    "noStatusCode": "-",
+    "noFinalUrl": "无最终地址"
+  },
+  "home": {
+    "totals": {
+      "healthySites": "正常",
+      "degradedSites": "波动",
+      "downSites": "故障"
+    },
+    "starredAlerts": {
+      "none": "无",
+      "eyebrow": "Starred Alerts",
+      "active": "星标异常",
+      "allClear": "星标正常"
+    },
+    "actions": {
+      "manageSites": "管理站点"
+    }
+  },
+  "sitesPage": {
+    "eyebrow": "Sites",
+    "title": "站点监测配置",
+    "description": "站点页负责配置检测目标和频率。首页只做结果汇总，这里保留完整列表和手动检测入口。",
+    "actions": {
+      "runAll": "检测全部启用站点",
+      "runNow": "立即检测",
+      "addSite": "添加站点",
+      "createSite": "创建新站点",
+      "deleteSite": "删除站点",
+      "hideForm": "收起表单",
+      "expandRow": "展开详情",
+      "collapseRow": "收起详情"
+    },
+    "confirmations": {
+      "deleteSite": "确认删除这个站点吗？相关检测历史也会一起删除。"
+    },
+    "summary": {
+      "totalSites": "站点数",
+      "activeSites": "启用中",
+      "alertSites": "异常站点",
+      "lastCheck": "最近检测"
+    },
+    "form": {
+      "title": "新增监测站点",
+      "description": "第一版只做服务端 HTTP 可用性检测，建议填写稳定可访问的健康检查地址。",
+      "fields": {
+        "name": {
+          "label": "站点名称",
+          "placeholder": "例如：Main Site"
+        },
+        "domain": {
+          "label": "域名",
+          "placeholder": "例如：example.com"
+        },
+        "checkUrl": {
+          "label": "检测地址",
+          "placeholder": "例如：https://example.com/health"
+        },
+        "checkInterval": {
+          "label": "检测频率"
+        },
+        "notes": {
+          "label": "备注",
+          "placeholder": "可选，用于标记用途或环境"
+        },
+        "isActive": {
+          "label": "添加后立即启用监测"
+        },
+        "isStarred": {
+          "label": "设为星标站点"
+        }
+      }
+    },
+    "table": {
+      "title": "当前站点",
+      "description": "一行一个站点。点击整行可展开查看最近检测详情和延时历史。",
+      "emptyTitle": "还没有任何监测站点。",
+      "emptyDescription": "先添加一条站点配置，之后就可以从这里手动触发检测，并在首页看到汇总状态。",
+      "columns": {
+        "site": "站点",
+        "status": "状态",
+        "interval": "频率",
+        "lastCheckedAt": "最近检测",
+        "responseTime": "最近耗时",
+        "checkUrl": "检测地址"
+      },
+      "details": {
+        "title": "最近检测详情",
+        "historyTitle": "最近延时历史",
+        "statusCode": "状态码",
+        "method": "方法",
+        "redirected": "重定向",
+        "finalUrl": "最终地址",
+        "error": "错误",
+        "notes": "备注",
+        "active": "监测状态",
+        "activeValue": "启用中",
+        "inactiveValue": "已暂停",
+        "yes": "是",
+        "no": "否",
+        "noHistory": "还没有历史检测记录。",
+        "latest": "最近一次",
+        "responseUnit": "ms"
+      }
+    },
+    "star": {
+      "starred": "已星标",
+      "notStarred": "未星标"
+    }
+  },
+  "siteActions": {
+    "star": "星标",
+    "unstar": "取消星标"
+  },
+  "intervalOptions": [
+    {
+      "value": 10,
+      "label": "10 分钟"
+    },
+    {
+      "value": 60,
+      "label": "1 小时"
+    },
+    {
+      "value": 360,
+      "label": "6 小时"
+    }
+  ]
+}

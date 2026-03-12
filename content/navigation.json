@@ -1,0 +1,59 @@
+{
+  "workspace": {
+    "name": "Wayne's Monitor",
+    "description": "Personal Ops Console"
+  },
+  "ui": {
+    "workspaceLabel": "Workspace",
+    "expandAriaLabel": "Expand sidebar",
+    "collapseAriaLabel": "Collapse sidebar",
+    "closeSidebarAriaLabel": "Close sidebar",
+    "closeOverlayAriaLabel": "Close sidebar overlay",
+    "openSidebarAriaLabel": "Open sidebar",
+    "headerProductName": "WebMonitor",
+    "headerProductDescription": "Personal website ops dashboard",
+    "headerWorkspaceStatus": "Local workspace"
+  },
+  "sections": [
+    {
+      "title": "Overview",
+      "items": [
+        {
+          "label": "Dashboard",
+          "href": "/",
+          "icon": "dashboard"
+        },
+        {
+          "label": "Sites",
+          "href": "/sites",
+          "icon": "sites"
+        }
+      ]
+    },
+    {
+      "title": "System",
+      "items": [
+        {
+          "label": "Manual Checks",
+          "href": "/sites",
+          "icon": "integrations"
+        },
+        {
+          "label": "Latest Signals",
+          "href": "/sites",
+          "icon": "trends"
+        }
+      ]
+    }
+  ],
+  "footerCards": [
+    {
+      "eyebrow": "Active Stack",
+      "value": "Next.js + Drizzle"
+    },
+    {
+      "eyebrow": "Deploy",
+      "value": "Dokploy / Dockerfile"
+    }
+  ]
+}
