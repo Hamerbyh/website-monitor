@@ -1,5 +1,7 @@
 import "dotenv/config";
 
+import { randomUUID } from "node:crypto";
+
 import { hashPassword } from "better-auth/crypto";
 import postgres from "postgres";
 
@@ -50,8 +52,11 @@ try {
       throw new Error("Failed to create or update user.");
     }
 
+    const accountRowId = randomUUID();
+
     await tx`
       insert into accounts (
+        id,
         account_id,
         provider_id,
         user_id,
@@ -59,7 +64,7 @@ try {
         created_at,
         updated_at
       )
-      values (${userId}, 'credential', ${userId}, ${passwordHash}, ${now}, ${now})
+      values (${accountRowId}, ${userId}, 'credential', ${userId}, ${passwordHash}, ${now}, ${now})
       on conflict (provider_id, account_id)
       do update set
         password = excluded.password,
