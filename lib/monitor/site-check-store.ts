@@ -59,6 +59,42 @@ export async function runChecksForActiveSites(input?: { timeoutMs?: number }) {
   return results;
 }
 
+export async function runChecksForDueSites(input?: {
+  timeoutMs?: number;
+  now?: Date;
+}) {
+  const now = input?.now ?? new Date();
+  const activeSites = await db.query.sites.findMany({
+    where: eq(sites.isActive, true),
+    orderBy: (table, { asc }) => [asc(table.createdAt)],
+  });
+
+  const dueSites = activeSites.filter((site) => isSiteCheckDue(site, now));
+  const results = [];
+
+  for (const site of dueSites) {
+    const result = await performSiteCheck({
+      url: site.checkUrl,
+      timeoutMs: input?.timeoutMs,
+    });
+
+    await persistSiteCheck(site.id, result);
+    await sendSiteAlert(site, result);
+
+    results.push({
+      site,
+      result,
+    });
+  }
+
+  return {
+    checkedAt: now,
+    checkedCount: results.length,
+    skippedCount: activeSites.length - results.length,
+    results,
+  };
+}
+
 export async function persistSiteCheck(siteId: string, result: SiteCheckResult) {
   await db.insert(siteChecks).values({
     siteId,
@@ -109,4 +145,21 @@ async function sendSiteAlert(
       error,
     });
   }
+}
+
+function isSiteCheckDue(
+  site: {
+    lastCheckedAt: Date | null;
+    checkIntervalMinutes: number;
+  },
+  now: Date,
+) {
+  if (!site.lastCheckedAt) {
+    return true;
+  }
+
+  const nextCheckAt =
+    site.lastCheckedAt.getTime() + site.checkIntervalMinutes * 60 * 1000;
+
+  return nextCheckAt <= now.getTime();
 }

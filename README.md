@@ -366,6 +366,43 @@ RESEND_API_KEY=re_xxxxxxxxx
 - `ALERT_EMAIL_FROM` 需要使用你在 Resend 已验证域名下的发件地址
 - 开源仓库里建议只保留占位符，实际发件域名只在部署环境变量中配置
 
+## Dokploy 自动检测
+
+当前已经支持通过定时调用受保护的 API，自动执行“到期站点检测”。
+
+工作方式：
+
+- 由 Dokploy 定时请求 `POST /api/monitor/check-due`
+- 只检查 `isActive=true` 且已经到达检测时间的站点
+- 判定规则是：
+  - `lastCheckedAt` 为空时，视为到期
+  - 或 `lastCheckedAt + checkIntervalMinutes <= now`
+
+需要新增环境变量：
+
+```env
+MONITOR_CRON_SECRET=replace-with-a-long-random-cron-secret
+```
+
+调用方式：
+
+```bash
+curl -X POST "https://your-domain.example.com/api/monitor/check-due" \
+  -H "Authorization: Bearer replace-with-a-long-random-cron-secret" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Dokploy 中建议：
+
+- 新建一个 Cron Job
+- 每 `5` 分钟触发一次
+- 请求地址填 `/api/monitor/check-due`
+- 请求方法用 `POST`
+- 请求头加 `Authorization: Bearer 你的 MONITOR_CRON_SECRET`
+
+这样站点自身的 `10 分钟 / 1 小时 / 6 小时` 检测频率就会在服务端自动生效，不需要每个频率单独建一条 cron。
+
 ### 前后端关系
 
 如果前期以单体应用形式开发，建议在代码层面仍保持明确边界：

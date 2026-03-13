@@ -48,3 +48,8 @@ This index groups change notes by topic so future work can find the right contex
 - [2026-03-13](./changes/2026-03-13.md)
   - Resend email alerts on configured site status changes
   - env-driven alert enablement, recipients, sender, and trigger statuses
+
+## Scheduling
+- [2026-03-13](./changes/2026-03-13.md)
+  - due-site auto-check endpoint for Dokploy cron
+  - cron-secret protected monitoring trigger
