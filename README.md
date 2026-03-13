@@ -256,6 +256,89 @@ MVP 可先预留结构，后续逐步接入：
 
 可以同机部署，但代码和职责边界应保持清晰。
 
+## Dokploy 部署
+
+当前仓库已经补齐 Dockerfile，可直接在 Dokploy 中按 `Dockerfile` 方式部署。
+
+### 1. 创建 PostgreSQL 服务
+
+先在 Dokploy 中创建 PostgreSQL，并记录以下信息：
+
+- 数据库名
+- 用户名
+- 密码
+- Dokploy 内部可访问的主机名或服务名
+
+推荐在应用容器里使用 Dokploy 内网地址，不要写 `127.0.0.1`，例如：
+
+```env
+DATABASE_URL=postgresql://webmonitor_user:your-password@postgres:5432/webmonitor
+```
+
+### 2. 创建 WebMonitor 应用
+
+在 Dokploy 新建应用时：
+
+- Source 选择当前 Git 仓库
+- Build Type 选择 `Dockerfile`
+- Port 填 `3000`
+
+建议环境变量至少配置：
+
+```env
+DATABASE_URL=postgresql://webmonitor_user:your-password@postgres:5432/webmonitor
+BETTER_AUTH_SECRET=replace-with-a-long-random-secret
+BETTER_AUTH_URL=https://your-domain.example.com
+WAIT_FOR_DB=true
+RUN_DB_PUSH=false
+DB_CONNECT_RETRIES=30
+DB_CONNECT_DELAY_MS=2000
+```
+
+说明：
+
+- `BETTER_AUTH_URL` 必须是最终对外访问的正式域名
+- `WAIT_FOR_DB=true` 会在启动时等待 PostgreSQL 就绪
+- `RUN_DB_PUSH=true` 会在容器启动时自动执行一次 `npm run db:push`
+
+### 3. 首次建表
+
+首次上线需要把 Drizzle schema 推到数据库。建议只在第一次部署或 schema 变更时临时开启：
+
+```env
+RUN_DB_PUSH=true
+```
+
+完成后建议改回：
+
+```env
+RUN_DB_PUSH=false
+```
+
+这样可以避免每次重启容器都重复执行 schema push。
+
+### 4. 初始化管理员
+
+应用部署完成且数据库表已创建后，在 Dokploy 应用终端里执行：
+
+```bash
+npm run auth:create-admin -- --email you@example.com --password your-password --name Wayne
+```
+
+然后访问：
+
+```text
+/login
+```
+
+使用刚创建的管理员账号登录。
+
+### 5. 域名与回调注意事项
+
+- 如果站点绑定了正式域名，`BETTER_AUTH_URL` 必须同步更新为该域名
+- 如果你先用临时域名测试，切换正式域名后要一起修改 `BETTER_AUTH_URL`
+- 认证 Cookie 与回调地址依赖这个值，填错会导致登录异常
+
 ### 前后端关系
 
 如果前期以单体应用形式开发，建议在代码层面仍保持明确边界：

@@ -37,3 +37,9 @@ This index groups change notes by topic so future work can find the right contex
 - [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
   - project memory workflow
   - privacy rule for tracked notes
+
+## Deployment
+- [2026-03-13](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-13.md)
+  - Dockerfile-based Dokploy deployment flow
+  - container DB wait and optional schema push
+  - deployment env documentation for Dokploy PostgreSQL
