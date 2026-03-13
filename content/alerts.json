@@ -1,0 +1,32 @@
+{
+  "email": {
+    "subjectPrefix": "[WebMonitor]",
+    "subjectEntered": "站点进入告警状态",
+    "intro": "检测到站点状态进入邮件告警范围。",
+    "footnote": "这是系统自动发送的监控邮件。",
+    "statusLabels": {
+      "healthy": "正常",
+      "degraded": "波动",
+      "warning": "告警",
+      "down": "故障"
+    },
+    "fieldLabels": {
+      "siteName": "站点名称",
+      "domain": "域名",
+      "checkUrl": "检测地址",
+      "previousStatus": "之前状态",
+      "currentStatus": "当前状态",
+      "checkedAt": "检测时间",
+      "statusCode": "状态码",
+      "responseTime": "响应耗时",
+      "error": "错误信息"
+    },
+    "fallbacks": {
+      "none": "无",
+      "unknown": "未知"
+    },
+    "units": {
+      "milliseconds": "ms"
+    }
+  }
+}

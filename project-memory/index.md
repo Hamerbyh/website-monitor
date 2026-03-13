@@ -3,14 +3,14 @@
 This index groups change notes by topic so future work can find the right context quickly.
 
 ## Auth
-- [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
+- [2026-03-12](./changes/2026-03-12.md)
   - Better Auth integration
   - login-only flow
   - local admin creation
   - auth schema compatibility fix
 
 ## Monitoring
-- [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
+- [2026-03-12](./changes/2026-03-12.md)
   - first-pass server-side HTTP checks
   - single-site and batch check endpoints
   - per-site check interval storage
@@ -22,7 +22,7 @@ This index groups change notes by topic so future work can find the right contex
   - site starring and starred-site priority on homepage
 
 ## Dashboard UI
-- [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
+- [2026-03-12](./changes/2026-03-12.md)
   - dense app shell
   - collapsible sidebar
   - dashboard layout tightening
@@ -30,16 +30,21 @@ This index groups change notes by topic so future work can find the right contex
   - homepage reduced to colored status counts and starred alert names
 
 ## Content System
-- [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
+- [2026-03-12](./changes/2026-03-12.md)
   - UI copy centralized into JSON under `/content`
 
 ## Process Rules
-- [2026-03-12](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-12.md)
+- [2026-03-12](./changes/2026-03-12.md)
   - project memory workflow
   - privacy rule for tracked notes
 
 ## Deployment
-- [2026-03-13](/Users/waynebao/Documents/webmonitor/project-memory/changes/2026-03-13.md)
+- [2026-03-13](./changes/2026-03-13.md)
   - Dockerfile-based Dokploy deployment flow
   - container DB wait and optional schema push
   - deployment env documentation for Dokploy PostgreSQL
+
+## Alerting
+- [2026-03-13](./changes/2026-03-13.md)
+  - Resend email alerts on configured site status changes
+  - env-driven alert enablement, recipients, sender, and trigger statuses

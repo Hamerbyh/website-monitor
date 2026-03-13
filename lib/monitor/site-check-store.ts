@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { siteChecks, sites } from "@/lib/db/schema";
+import { sendSiteStatusEmailAlert } from "@/lib/notifications/site-status-email-alert";
 import { performSiteCheck, type SiteCheckResult } from "@/lib/monitor/site-check";
 
 export async function runSiteCheckForSite(input: {
@@ -24,6 +25,7 @@ export async function runSiteCheckForSite(input: {
   });
 
   await persistSiteCheck(site.id, result);
+  await sendSiteAlert(site, result);
 
   return {
     site,
@@ -46,6 +48,7 @@ export async function runChecksForActiveSites(input?: { timeoutMs?: number }) {
     });
 
     await persistSiteCheck(site.id, result);
+    await sendSiteAlert(site, result);
 
     results.push({
       site,
@@ -80,4 +83,30 @@ export async function persistSiteCheck(siteId: string, result: SiteCheckResult) 
       updatedAt: new Date(),
     })
     .where(eq(sites.id, siteId));
+}
+
+async function sendSiteAlert(
+  site: {
+    id: string;
+    name: string;
+    domain: string;
+    checkUrl: string;
+    isActive: boolean;
+    status: "healthy" | "degraded" | "warning" | "down";
+  },
+  result: SiteCheckResult,
+) {
+  try {
+    await sendSiteStatusEmailAlert({
+      site,
+      previousStatus: site.status,
+      result,
+    });
+  } catch (error) {
+    console.error("Failed to send site status alert email.", {
+      siteId: site.id,
+      siteName: site.name,
+      error,
+    });
+  }
 }

@@ -339,6 +339,33 @@ npm run auth:create-admin -- --email you@example.com --password your-password --
 - 如果你先用临时域名测试，切换正式域名后要一起修改 `BETTER_AUTH_URL`
 - 认证 Cookie 与回调地址依赖这个值，填错会导致登录异常
 
+## Resend 邮件告警
+
+当前已经支持在站点状态进入指定范围时发送邮件告警。
+
+默认行为：
+
+- 只有 `down` 会发邮件
+- 只有状态发生变化时才发，避免同一站点每次检测都重复轰炸
+- 默认关闭，适合开发环境按需开启
+
+需要配置的环境变量：
+
+```env
+ALERT_EMAIL_ENABLED=true
+ALERT_EMAIL_TRIGGER_STATUSES=down
+ALERT_EMAIL_FROM=WebMonitor <alerts@your-mail-domain.example>
+ALERT_EMAIL_TO=you@example.com
+RESEND_API_KEY=re_xxxxxxxxx
+```
+
+说明：
+
+- `ALERT_EMAIL_ENABLED=false` 时完全不发邮件
+- `ALERT_EMAIL_TRIGGER_STATUSES` 支持逗号分隔，例如 `down,degraded`
+- `ALERT_EMAIL_FROM` 需要使用你在 Resend 已验证域名下的发件地址
+- 开源仓库里建议只保留占位符，实际发件域名只在部署环境变量中配置
+
 ### 前后端关系
 
 如果前期以单体应用形式开发，建议在代码层面仍保持明确边界：
