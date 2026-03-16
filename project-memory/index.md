@@ -20,6 +20,11 @@ This index groups change notes by topic so future work can find the right contex
   - `GET`-only availability checks with relaxed degraded threshold
   - site deletion from `/sites`
   - site starring and starred-site priority on homepage
+- [2026-03-16](./changes/2026-03-16.md)
+  - site-level TLS certificate checks
+  - shared cron flow for HTTP and SSL monitoring
+  - `site_ssl_status` persistence and SSL issue sync
+  - `/sites` certificate status and expiry details
 
 ## Dashboard UI
 - [2026-03-12](./changes/2026-03-12.md)

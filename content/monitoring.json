@@ -4,7 +4,16 @@
     "noError": "无错误",
     "noNotes": "无备注",
     "noStatusCode": "-",
-    "noFinalUrl": "无最终地址"
+    "noFinalUrl": "无最终地址",
+    "sslIssueTexts": {
+      "checkFailedTitle": "SSL 证书检测失败",
+      "domainMismatchTitle": "SSL 证书域名不匹配",
+      "expirationUnknownTitle": "SSL 证书到期时间未知",
+      "expiredTitle": "SSL 证书已过期",
+      "expiringSoonTitle": "SSL 证书即将到期",
+      "domainMismatchDetail": "证书主域名或 SAN 与当前配置域名不一致。",
+      "expirationUnknownDetail": "无法解析证书到期时间。"
+    }
   },
   "home": {
     "totals": {
@@ -47,7 +56,7 @@
     },
     "form": {
       "title": "新增监测站点",
-      "description": "第一版只做服务端 HTTP 可用性检测，建议填写稳定可访问的健康检查地址。",
+      "description": "每个站点会定期执行服务端 HTTP 可用性检测，并按域名补充 SSL 证书检查。",
       "fields": {
         "name": {
           "label": "站点名称",
@@ -87,16 +96,25 @@
         "interval": "频率",
         "lastCheckedAt": "最近检测",
         "responseTime": "最近耗时",
-        "checkUrl": "检测地址"
+        "checkUrl": "检测地址",
+        "ssl": "证书状态"
       },
       "details": {
         "title": "最近检测详情",
+        "sslTitle": "证书状态",
         "historyTitle": "最近延时历史",
         "statusCode": "状态码",
         "method": "方法",
         "redirected": "重定向",
         "finalUrl": "最终地址",
         "error": "错误",
+        "sslCheckedAt": "证书检测时间",
+        "sslExpiresAt": "证书到期",
+        "sslDaysRemaining": "剩余天数",
+        "sslIssuer": "颁发者",
+        "sslCommonName": "证书主域名",
+        "sslDomainMatch": "域名匹配",
+        "sslError": "证书错误",
         "notes": "备注",
         "active": "监测状态",
         "activeValue": "启用中",
@@ -105,7 +123,15 @@
         "no": "否",
         "noHistory": "还没有历史检测记录。",
         "latest": "最近一次",
-        "responseUnit": "ms"
+        "responseUnit": "ms",
+        "sslStates": {
+          "notChecked": "未检测",
+          "healthy": "有效",
+          "expiringSoon": "即将到期",
+          "expired": "已过期",
+          "mismatch": "域名不匹配",
+          "error": "检测失败"
+        }
       }
     },
     "star": {

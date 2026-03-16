@@ -22,6 +22,24 @@ function parseAlertTriggerStatuses(value: string | undefined) {
   return z.array(z.enum(siteStatusValues)).parse(rawValues);
 }
 
+function parsePositiveIntegerEnv(
+  value: string | undefined,
+  defaultValue: number,
+  envName: string,
+) {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`${envName} must be a positive integer`);
+  }
+
+  return parsed;
+}
+
 const serverEnvSchema = z.object({
   DATABASE_URL: z
     .string()
@@ -39,6 +57,9 @@ const serverEnvSchema = z.object({
   ALERT_EMAIL_FROM: z.string().min(1).optional(),
   ALERT_EMAIL_TO: z.string().min(1).optional(),
   ALERT_EMAIL_TRIGGER_STATUSES: z.array(z.enum(siteStatusValues)),
+  SSL_CHECK_INTERVAL_MINUTES: z.number().int().positive(),
+  SSL_EXPIRING_SOON_DAYS: z.number().int().positive(),
+  SSL_EXPIRING_CRITICAL_DAYS: z.number().int().positive(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -62,6 +83,21 @@ export function getServerEnv(): ServerEnv {
     ALERT_EMAIL_TO: process.env.ALERT_EMAIL_TO,
     ALERT_EMAIL_TRIGGER_STATUSES: parseAlertTriggerStatuses(
       process.env.ALERT_EMAIL_TRIGGER_STATUSES,
+    ),
+    SSL_CHECK_INTERVAL_MINUTES: parsePositiveIntegerEnv(
+      process.env.SSL_CHECK_INTERVAL_MINUTES,
+      360,
+      "SSL_CHECK_INTERVAL_MINUTES",
+    ),
+    SSL_EXPIRING_SOON_DAYS: parsePositiveIntegerEnv(
+      process.env.SSL_EXPIRING_SOON_DAYS,
+      14,
+      "SSL_EXPIRING_SOON_DAYS",
+    ),
+    SSL_EXPIRING_CRITICAL_DAYS: parsePositiveIntegerEnv(
+      process.env.SSL_EXPIRING_CRITICAL_DAYS,
+      3,
+      "SSL_EXPIRING_CRITICAL_DAYS",
     ),
   });
 

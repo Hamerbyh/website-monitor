@@ -56,6 +56,10 @@ export async function getSitesDashboardData() {
         where: (table, { eq }) => eq(table.siteId, site.id),
         orderBy: (table, { desc: descOrder }) => [descOrder(table.checkedAt)],
       });
+      const latestSslStatus = await db.query.siteSslStatus.findFirst({
+        where: (table, { eq }) => eq(table.siteId, site.id),
+        orderBy: (table, { desc: descOrder }) => [descOrder(table.checkedAt)],
+      });
 
       const recentChecks = await db.query.siteChecks.findMany({
         where: (table, { eq }) => eq(table.siteId, site.id),
@@ -66,6 +70,7 @@ export async function getSitesDashboardData() {
       return {
         ...site,
         latestCheck,
+        latestSslStatus,
         recentChecks,
         statusBadge: getStatusBadge(site.status),
       };

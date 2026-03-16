@@ -32,6 +32,7 @@ export async function POST(request: Request) {
         mode: "site",
         site: data.site,
         result: data.result,
+        sslResult: data.sslResult,
       });
     }
 

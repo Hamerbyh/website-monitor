@@ -35,6 +35,17 @@ type SiteItem = {
   lastCheckedAt: Date | null;
   statusBadge: string;
   latestCheck: CheckItem | undefined;
+  latestSslStatus:
+    | {
+        isValid: boolean;
+        expiresAt: Date | null;
+        daysRemaining: number | null;
+        issuer: string | null;
+        commonName: string | null;
+        matchedDomain: boolean;
+        checkedAt: Date;
+      }
+    | undefined;
   recentChecks: CheckItem[];
 };
 
@@ -51,6 +62,7 @@ type SitesPageClientProps = {
   }>;
   sites: SiteItem[];
   intervalLabelMap: Record<number, string>;
+  sslExpiringSoonDays: number;
 };
 
 function formatDateTime(value: Date | null) {
@@ -91,11 +103,69 @@ function getRedirected(meta: unknown) {
   return (meta as { redirected?: unknown }).redirected === true;
 }
 
+function formatSslDateTime(value: Date | null) {
+  if (!value) {
+    return monitoringContent.sitesPage.table.details.sslStates.notChecked;
+  }
+
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function getSslStatusLabel(site: SiteItem, sslExpiringSoonDays: number) {
+  const sslStatus = site.latestSslStatus;
+
+  if (!sslStatus) {
+    return monitoringContent.sitesPage.table.details.sslStates.notChecked;
+  }
+
+  if (!sslStatus.matchedDomain) {
+    return monitoringContent.sitesPage.table.details.sslStates.mismatch;
+  }
+
+  if (!sslStatus.isValid || (sslStatus.daysRemaining !== null && sslStatus.daysRemaining <= 0)) {
+    return monitoringContent.sitesPage.table.details.sslStates.expired;
+  }
+
+  if (
+    sslStatus.daysRemaining !== null &&
+    sslStatus.daysRemaining <= sslExpiringSoonDays
+  ) {
+    return monitoringContent.sitesPage.table.details.sslStates.expiringSoon;
+  }
+
+  return monitoringContent.sitesPage.table.details.sslStates.healthy;
+}
+
+function getSslErrorLabel(site: SiteItem) {
+  const sslStatus = site.latestSslStatus;
+
+  if (!sslStatus) {
+    return monitoringContent.sitesPage.table.details.sslStates.notChecked;
+  }
+
+  if (!sslStatus.matchedDomain) {
+    return monitoringContent.sitesPage.table.details.sslStates.mismatch;
+  }
+
+  if (!sslStatus.isValid && sslStatus.expiresAt === null) {
+    return monitoringContent.sitesPage.table.details.sslStates.error;
+  }
+
+  return monitoringContent.common.noError;
+}
+
 export function SitesPageClient({
   summary,
   intervalOptions,
   sites,
   intervalLabelMap,
+  sslExpiringSoonDays,
 }: SitesPageClientProps) {
   const content = monitoringContent.sitesPage;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -310,13 +380,13 @@ export function SitesPageClient({
                         : "border-[#d9a2a2] bg-[linear-gradient(135deg,rgba(195,48,48,0.14),rgba(255,245,245,0.9))]"
                   }`}
                 >
-                  <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.25fr)_repeat(4,minmax(0,0.7fr))_auto_auto_auto] lg:items-center">
+                  <div className="grid gap-4 p-4 lg:grid-cols-[minmax(0,1.25fr)_repeat(5,minmax(0,0.7fr))_auto_auto_auto] lg:items-center">
                     <button
                       type="button"
                       onClick={() =>
                         setExpandedSiteId((current) => (current === site.id ? null : site.id))
                       }
-                      className="grid min-w-0 gap-4 text-left lg:col-span-5 lg:grid-cols-[minmax(0,1.25fr)_repeat(4,minmax(0,0.7fr))] lg:items-center"
+                      className="grid min-w-0 gap-4 text-left lg:col-span-6 lg:grid-cols-[minmax(0,1.25fr)_repeat(5,minmax(0,0.7fr))] lg:items-center"
                       aria-expanded={isExpanded}
                       aria-label={
                         isExpanded ? content.actions.collapseRow : content.actions.expandRow
@@ -367,6 +437,13 @@ export function SitesPageClient({
                         <p className="table-label">{content.table.columns.lastCheckedAt}</p>
                         <p className="mt-2 text-sm font-semibold text-(--ink)">
                           {formatDateTime(latestCheck?.checkedAt ?? site.lastCheckedAt)}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="table-label">{content.table.columns.ssl}</p>
+                        <p className="mt-2 text-sm font-semibold text-(--ink)">
+                          {getSslStatusLabel(site, sslExpiringSoonDays)}
                         </p>
                       </div>
 
@@ -505,6 +582,69 @@ export function SitesPageClient({
                                 <p className="table-label">{content.table.details.notes}</p>
                                 <p className="mt-2 text-sm text-(--ink)">
                                   {site.notes || monitoringContent.common.noNotes}
+                                </p>
+                              </div>
+                            </div>
+                          </section>
+
+                          <section className="rounded-[20px] border border-(--line-soft) bg-white/72 p-4">
+                            <p className="text-[10px] uppercase tracking-[0.24em] text-(--muted-dark)">
+                              {content.table.details.sslTitle}
+                            </p>
+
+                            <div className="mt-4 grid gap-3 md:grid-cols-2">
+                              <div>
+                                <p className="table-label">{content.table.columns.ssl}</p>
+                                <p className="mt-2 text-sm font-semibold text-(--ink)">
+                                  {getSslStatusLabel(site, sslExpiringSoonDays)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslCheckedAt}</p>
+                                <p className="mt-2 text-sm font-semibold text-(--ink)">
+                                  {formatSslDateTime(site.latestSslStatus?.checkedAt ?? null)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslExpiresAt}</p>
+                                <p className="mt-2 text-sm font-semibold text-(--ink)">
+                                  {formatSslDateTime(site.latestSslStatus?.expiresAt ?? null)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslDaysRemaining}</p>
+                                <p className="mt-2 text-sm font-semibold text-(--ink)">
+                                  {site.latestSslStatus?.daysRemaining ??
+                                    monitoringContent.sitesPage.table.details.sslStates.notChecked}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslIssuer}</p>
+                                <p className="mt-2 text-sm text-(--ink)">
+                                  {site.latestSslStatus?.issuer ?? monitoringContent.common.noStatusCode}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslCommonName}</p>
+                                <p className="mt-2 text-sm text-(--ink)">
+                                  {site.latestSslStatus?.commonName ??
+                                    monitoringContent.common.noStatusCode}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslDomainMatch}</p>
+                                <p className="mt-2 text-sm font-semibold text-(--ink)">
+                                  {site.latestSslStatus
+                                    ? site.latestSslStatus.matchedDomain
+                                      ? content.table.details.yes
+                                      : content.table.details.no
+                                    : monitoringContent.sitesPage.table.details.sslStates.notChecked}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="table-label">{content.table.details.sslError}</p>
+                                <p className="mt-2 text-sm text-(--ink)">
+                                  {getSslErrorLabel(site)}
                                 </p>
                               </div>
                             </div>
