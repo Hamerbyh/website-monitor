@@ -1,0 +1,16 @@
+{
+  "telegram": {
+    "title": "Polymarket price alert",
+    "eventLabel": "Event",
+    "marketLabel": "Market",
+    "outcomeLabel": "Outcome",
+    "priceLabel": "Price",
+    "previousPriceLabel": "Previous",
+    "changeLabel": "Change",
+    "lookbackLabel": "Window",
+    "checkedAtLabel": "Checked at",
+    "volume24hrLabel": "vol24",
+    "liquidityLabel": "liq",
+    "minutesUnit": "min"
+  }
+}

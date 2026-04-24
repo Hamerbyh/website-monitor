@@ -403,6 +403,74 @@ Dokploy 中建议：
 
 这样站点自身的 `10 分钟 / 1 小时 / 6 小时` 检测频率就会在服务端自动生效，不需要每个频率单独建一条 cron。
 
+## Polymarket Telegram 告警
+
+可以不新增数据库表，直接通过 Dokploy 定时调用独立接口 `/api/monitor/polymarket/check` 检查 Polymarket 公开数据。
+
+这个模式不会保存本地快照，而是每次从 Polymarket 拉当前价格和历史窗口价格做比较。优点是部署简单；限制是同一个窗口内只要价格变化持续超过阈值，就可能在每次 cron 触发时重复发送 Telegram。
+
+需要配置：
+
+```env
+TELEGRAM_ALERT_ENABLED=true
+TELEGRAM_BOT_TOKEN=123456:replace-with-bot-token
+TELEGRAM_CHAT_ID=-1001234567890
+
+POLYMARKET_MONITOR_ENABLED=true
+POLYMARKET_MONITOR_LOOKBACK_MINUTES=60
+POLYMARKET_MONITOR_THRESHOLD_BPS=500
+POLYMARKET_MONITOR_TARGETS='[
+  {
+    "name": "Example market",
+    "marketSlug": "example-market-slug",
+    "outcome": "Yes",
+    "lookbackMinutes": 60,
+    "thresholdBps": 500
+  }
+]'
+```
+
+多子市场事件可以直接配置事件 slug，例如：
+
+```env
+POLYMARKET_MONITOR_TARGETS='[
+  {
+    "name": "Best AI model end of April",
+    "eventSlug": "which-company-has-the-best-ai-model-end-of-april",
+    "marketLabels": ["OpenAI"],
+    "outcome": "Yes",
+    "lookbackMinutes": 5,
+    "thresholdBps": 100,
+    "notifyAlways": true
+  }
+]'
+```
+
+这类事件默认会逐个检查事件下的子市场，并按子市场单独提醒。配置 `marketLabels` 后只检查指定子市场。Telegram 消息会包含类似：
+
+```text
+- OpenAI  Yes 7.6% / No 92.4%  vol24=$471.8k  liq=$37.2k
+```
+
+配置说明：
+
+- `thresholdBps=500` 表示价格概率变化达到 `5%` 就提醒
+- `lookbackMinutes=60` 表示对比当前价格和约 60 分钟前的价格
+- `marketSlug` 可换成 `marketId`
+- 也可以配置 `eventSlug`，这会检查该事件下所有未关闭市场的指定 outcome
+- `eventSlug` 配合 `marketLabels` 可以只检查事件里的指定子市场，例如 `["OpenAI"]`
+- `outcome` 默认是 `Yes`
+- `notifyAlways=true` 时每次 cron 都会通知当前快照；不配置或为 `false` 时只在变化达到阈值后通知
+
+Dokploy 中建议为 Polymarket 单独建一个 Cron Job，例如每 `5` 分钟触发一次：
+
+```bash
+curl -X POST "https://your-domain.example.com/api/monitor/polymarket/check" \
+  -H "Authorization: Bearer replace-with-a-long-random-cron-secret" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
 ### 前后端关系
 
 如果前期以单体应用形式开发，建议在代码层面仍保持明确边界：

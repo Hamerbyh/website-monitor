@@ -50,6 +50,10 @@ This index groups change notes by topic so future work can find the right contex
   - tightened homepage into a denser control-board style with less dead space
   - added first-pass Google Search Console daily metrics, sync flow, and 30-day site-detail trends
   - added Search Console auto-sync participation in the shared due-check cron flow
+- [2026-04-24](./changes/2026-04-24.md)
+  - added no-table Polymarket price movement monitoring
+  - added environment-driven event or market target configuration
+  - added a dedicated Polymarket cron endpoint for separate scheduling
 
 ## Product Strategy
 - [2026-04-07](./changes/2026-04-07.md)
@@ -92,8 +96,13 @@ This index groups change notes by topic so future work can find the right contex
 - [2026-03-13](./changes/2026-03-13.md)
   - Resend email alerts on configured site status changes
   - env-driven alert enablement, recipients, sender, and trigger statuses
+- [2026-04-24](./changes/2026-04-24.md)
+  - Telegram Bot API alerts for Polymarket price movement checks
+  - documented duplicate-alert tradeoff for no-table monitoring
 
 ## Scheduling
 - [2026-03-13](./changes/2026-03-13.md)
   - due-site auto-check endpoint for Dokploy cron
   - cron-secret protected monitoring trigger
+- [2026-04-24](./changes/2026-04-24.md)
+  - dedicated Polymarket check endpoint supports independent 5-minute scheduling

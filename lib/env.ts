@@ -22,6 +22,14 @@ function parseAlertTriggerStatuses(value: string | undefined) {
   return z.array(z.enum(siteStatusValues)).parse(rawValues);
 }
 
+function parseJsonEnv(value: string | undefined, defaultValue: unknown) {
+  if (value === undefined || value.trim() === "") {
+    return defaultValue;
+  }
+
+  return JSON.parse(value);
+}
+
 function parsePositiveIntegerEnv(
   value: string | undefined,
   defaultValue: number,
@@ -57,6 +65,13 @@ const serverEnvSchema = z.object({
   ALERT_EMAIL_FROM: z.string().min(1).optional(),
   ALERT_EMAIL_TO: z.string().min(1).optional(),
   ALERT_EMAIL_TRIGGER_STATUSES: z.array(z.enum(siteStatusValues)),
+  TELEGRAM_ALERT_ENABLED: z.boolean(),
+  TELEGRAM_BOT_TOKEN: z.string().min(1).optional(),
+  TELEGRAM_CHAT_ID: z.string().min(1).optional(),
+  POLYMARKET_MONITOR_ENABLED: z.boolean(),
+  POLYMARKET_MONITOR_TARGETS: z.unknown(),
+  POLYMARKET_MONITOR_LOOKBACK_MINUTES: z.number().int().positive(),
+  POLYMARKET_MONITOR_THRESHOLD_BPS: z.number().int().positive(),
   SSL_CHECK_INTERVAL_MINUTES: z.number().int().positive(),
   SSL_EXPIRING_SOON_DAYS: z.number().int().positive(),
   SSL_EXPIRING_CRITICAL_DAYS: z.number().int().positive(),
@@ -92,6 +107,30 @@ export function getServerEnv(): ServerEnv {
     ALERT_EMAIL_TO: process.env.ALERT_EMAIL_TO,
     ALERT_EMAIL_TRIGGER_STATUSES: parseAlertTriggerStatuses(
       process.env.ALERT_EMAIL_TRIGGER_STATUSES,
+    ),
+    TELEGRAM_ALERT_ENABLED: parseBooleanEnv(
+      process.env.TELEGRAM_ALERT_ENABLED,
+      false,
+    ),
+    TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
+    TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
+    POLYMARKET_MONITOR_ENABLED: parseBooleanEnv(
+      process.env.POLYMARKET_MONITOR_ENABLED,
+      false,
+    ),
+    POLYMARKET_MONITOR_TARGETS: parseJsonEnv(
+      process.env.POLYMARKET_MONITOR_TARGETS,
+      [],
+    ),
+    POLYMARKET_MONITOR_LOOKBACK_MINUTES: parsePositiveIntegerEnv(
+      process.env.POLYMARKET_MONITOR_LOOKBACK_MINUTES,
+      60,
+      "POLYMARKET_MONITOR_LOOKBACK_MINUTES",
+    ),
+    POLYMARKET_MONITOR_THRESHOLD_BPS: parsePositiveIntegerEnv(
+      process.env.POLYMARKET_MONITOR_THRESHOLD_BPS,
+      500,
+      "POLYMARKET_MONITOR_THRESHOLD_BPS",
     ),
     SSL_CHECK_INTERVAL_MINUTES: parsePositiveIntegerEnv(
       process.env.SSL_CHECK_INTERVAL_MINUTES,

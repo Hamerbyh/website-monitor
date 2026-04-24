@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getServerEnv } from "@/lib/env";
+import { isAuthorizedMonitorCronRequest } from "@/lib/monitor/cron-auth";
 import { runChecksForDueSites } from "@/lib/monitor/site-check-store";
 import { runSearchConsoleSyncForDueSites } from "@/lib/monitor/site-search-console";
 import { runChecksForDueServices } from "@/lib/monitor/site-service-check-store";
@@ -12,22 +12,9 @@ const requestSchema = z.object({
   timeoutMs: z.number().int().positive().max(30_000).optional(),
 });
 
-function isAuthorized(request: Request) {
-  const cronSecret = getServerEnv().MONITOR_CRON_SECRET;
-
-  if (!cronSecret) {
-    throw new Error("MONITOR_CRON_SECRET is required for /api/monitor/check-due.");
-  }
-
-  const bearerToken = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  const headerSecret = request.headers.get("x-monitor-cron-secret");
-
-  return bearerToken === cronSecret || headerSecret === cronSecret;
-}
-
 export async function POST(request: Request) {
   try {
-    if (!isAuthorized(request)) {
+    if (!isAuthorizedMonitorCronRequest(request)) {
       return NextResponse.json(
         {
           ok: false,
