@@ -60,6 +60,15 @@ const serverEnvSchema = z.object({
   SSL_CHECK_INTERVAL_MINUTES: z.number().int().positive(),
   SSL_EXPIRING_SOON_DAYS: z.number().int().positive(),
   SSL_EXPIRING_CRITICAL_DAYS: z.number().int().positive(),
+  DOMAIN_CHECK_INTERVAL_MINUTES: z.number().int().positive(),
+  DOMAIN_EXPIRING_SOON_DAYS: z.number().int().positive(),
+  DOMAIN_EXPIRING_CRITICAL_DAYS: z.number().int().positive(),
+  GOOGLE_SEARCH_CONSOLE_CLIENT_ID: z.string().min(1).optional(),
+  GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET: z.string().min(1).optional(),
+  GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN: z.string().min(1).optional(),
+  SEARCH_CONSOLE_SYNC_LOOKBACK_DAYS: z.number().int().positive(),
+  SEARCH_CLICKS_DROP_THRESHOLD_PERCENT: z.number().int().positive(),
+  SEARCH_IMPRESSIONS_DROP_THRESHOLD_PERCENT: z.number().int().positive(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -99,7 +108,50 @@ export function getServerEnv(): ServerEnv {
       3,
       "SSL_EXPIRING_CRITICAL_DAYS",
     ),
+    DOMAIN_CHECK_INTERVAL_MINUTES: parsePositiveIntegerEnv(
+      process.env.DOMAIN_CHECK_INTERVAL_MINUTES,
+      1440,
+      "DOMAIN_CHECK_INTERVAL_MINUTES",
+    ),
+    DOMAIN_EXPIRING_SOON_DAYS: parsePositiveIntegerEnv(
+      process.env.DOMAIN_EXPIRING_SOON_DAYS,
+      30,
+      "DOMAIN_EXPIRING_SOON_DAYS",
+    ),
+    DOMAIN_EXPIRING_CRITICAL_DAYS: parsePositiveIntegerEnv(
+      process.env.DOMAIN_EXPIRING_CRITICAL_DAYS,
+      7,
+      "DOMAIN_EXPIRING_CRITICAL_DAYS",
+    ),
+    GOOGLE_SEARCH_CONSOLE_CLIENT_ID: process.env.GOOGLE_SEARCH_CONSOLE_CLIENT_ID,
+    GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET: process.env.GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET,
+    GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN: process.env.GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN,
+    SEARCH_CONSOLE_SYNC_LOOKBACK_DAYS: parsePositiveIntegerEnv(
+      process.env.SEARCH_CONSOLE_SYNC_LOOKBACK_DAYS,
+      60,
+      "SEARCH_CONSOLE_SYNC_LOOKBACK_DAYS",
+    ),
+    SEARCH_CLICKS_DROP_THRESHOLD_PERCENT: parsePositiveIntegerEnv(
+      process.env.SEARCH_CLICKS_DROP_THRESHOLD_PERCENT,
+      30,
+      "SEARCH_CLICKS_DROP_THRESHOLD_PERCENT",
+    ),
+    SEARCH_IMPRESSIONS_DROP_THRESHOLD_PERCENT: parsePositiveIntegerEnv(
+      process.env.SEARCH_IMPRESSIONS_DROP_THRESHOLD_PERCENT,
+      30,
+      "SEARCH_IMPRESSIONS_DROP_THRESHOLD_PERCENT",
+    ),
   });
 
   return cachedEnv;
+}
+
+export function hasSearchConsoleCredentials() {
+  const env = getServerEnv();
+
+  return Boolean(
+    env.GOOGLE_SEARCH_CONSOLE_CLIENT_ID &&
+      env.GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET &&
+      env.GOOGLE_SEARCH_CONSOLE_REFRESH_TOKEN,
+  );
 }

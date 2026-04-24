@@ -1,7 +1,11 @@
 import "server-only";
 
+import { eq, inArray } from "drizzle-orm";
+
+import monitoringContent from "@/content/monitoring.json";
 import uiContent from "@/content/ui.json";
 import { db } from "@/lib/db";
+import { issues } from "@/lib/db/schema";
 
 function getStatusBadge(status: string) {
   switch (status) {
@@ -33,6 +37,14 @@ function getStatusPriority(status: string) {
   }
 }
 
+function getIssueLevel(severity: string) {
+  return (
+    monitoringContent.common.issueLevels[
+      severity as keyof typeof monitoringContent.common.issueLevels
+    ] ?? monitoringContent.common.issueLevels.notice
+  );
+}
+
 export async function getSitesDashboardData() {
   const sites = await db.query.sites.findMany({
     orderBy: (table, { asc, desc: descOrder }) => [
@@ -49,6 +61,57 @@ export async function getSitesDashboardData() {
   );
   const downSites = activeSites.filter((site) => site.status === "down");
   const alertSites = activeSites.filter((site) => site.status !== "healthy");
+  const siteIds = sites.map((site) => site.id);
+
+  const allSiteServices =
+    siteIds.length === 0
+      ? []
+      : await db.query.siteServices.findMany({
+          where: (table) => inArray(table.siteId, siteIds),
+          orderBy: (table, { asc }) => [asc(table.displayName)],
+        });
+
+  const allSiteServiceStatuses =
+    allSiteServices.length === 0
+      ? []
+      : await db.query.siteServiceStatus.findMany({
+          where: (table) =>
+            inArray(
+              table.siteServiceId,
+              allSiteServices.map((service) => service.id),
+            ),
+        });
+
+  const serviceStatusMap = new Map(
+    allSiteServiceStatuses.map((status) => [status.siteServiceId, status]),
+  );
+  const servicesBySiteId = new Map<string, typeof allSiteServices>();
+
+  for (const service of allSiteServices) {
+    const currentServices = servicesBySiteId.get(service.siteId) ?? [];
+    currentServices.push(service);
+    servicesBySiteId.set(service.siteId, currentServices);
+  }
+
+  const openIssues = await db.query.issues.findMany({
+    where: eq(issues.isResolved, false),
+    orderBy: (table, { desc }) => [desc(table.detectedAt)],
+    limit: 8,
+  });
+  const issueSiteIds = [
+    ...new Set(
+      openIssues
+        .map((issue) => issue.siteId)
+        .filter((siteId): siteId is string => Boolean(siteId)),
+    ),
+  ];
+  const issueSites =
+    issueSiteIds.length === 0
+      ? []
+      : await db.query.sites.findMany({
+          where: (table) => inArray(table.id, issueSiteIds),
+        });
+  const issueSiteMap = new Map(issueSites.map((site) => [site.id, site]));
 
   const latestChecks = await Promise.all(
     sites.map(async (site) => {
@@ -66,9 +129,22 @@ export async function getSitesDashboardData() {
         orderBy: (table, { desc: descOrder }) => [descOrder(table.checkedAt)],
         limit: 8,
       });
+      const siteServices = (servicesBySiteId.get(site.id) ?? []).map((service) => ({
+        ...service,
+        latestStatus: serviceStatusMap.get(service.id),
+      }));
+      const serviceAlertCount = siteServices.filter((service) => {
+        const status = service.latestStatus?.status;
+        return status === "warning" || status === "down";
+      }).length;
 
       return {
         ...site,
+        services: siteServices,
+        serviceSummary: {
+          total: siteServices.length,
+          alerts: serviceAlertCount,
+        },
         latestCheck,
         latestSslStatus,
         recentChecks,
@@ -96,6 +172,13 @@ export async function getSitesDashboardData() {
     return left.name.localeCompare(right.name);
   });
 
+  const healthyServicesCount = allSiteServiceStatuses.filter(
+    (status) => status.status === "healthy",
+  ).length;
+  const alertServicesCount = allSiteServiceStatuses.filter((status) => {
+    return status.status === "warning" || status.status === "down";
+  }).length;
+
   return {
     totalSites,
     activeSitesCount: activeSites.length,
@@ -103,6 +186,9 @@ export async function getSitesDashboardData() {
     degradedSitesCount: degradedSites.length,
     downSitesCount: downSites.length,
     alertSitesCount: alertSites.length,
+    totalServicesCount: allSiteServices.length,
+    healthyServicesCount,
+    alertServicesCount,
     lastCheckedAt,
     sites: sortedSites,
     starredAlertSites: sortedSites.filter(
@@ -111,5 +197,10 @@ export async function getSitesDashboardData() {
     alertItems: sortedSites
       .filter((site) => site.isActive && site.status !== "healthy")
       .sort((left, right) => getStatusPriority(left.status) - getStatusPriority(right.status)),
+    openIssues: openIssues.map((issue) => ({
+      ...issue,
+      siteName: issue.siteId ? issueSiteMap.get(issue.siteId)?.name ?? null : null,
+      level: getIssueLevel(issue.severity),
+    })),
   };
 }

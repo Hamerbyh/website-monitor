@@ -5,6 +5,18 @@
     "noNotes": "无备注",
     "noStatusCode": "-",
     "noFinalUrl": "无最终地址",
+    "units": {
+      "minute": "分钟",
+      "hour": "小时",
+      "day": "天",
+      "intervalSuffix": "分钟",
+      "serviceAlertSuffix": "异常"
+    },
+    "issueLevels": {
+      "critical": "严重",
+      "warning": "警告",
+      "notice": "提示"
+    },
     "sslIssueTexts": {
       "checkFailedTitle": "SSL 证书检测失败",
       "domainMismatchTitle": "SSL 证书域名不匹配",
@@ -12,20 +24,66 @@
       "expiredTitle": "SSL 证书已过期",
       "expiringSoonTitle": "SSL 证书即将到期",
       "domainMismatchDetail": "证书主域名或 SAN 与当前配置域名不一致。",
-      "expirationUnknownDetail": "无法解析证书到期时间。"
+      "expirationUnknownDetail": "无法解析证书到期时间。",
+      "expiredDetailPrefix": "证书已于",
+      "expiringSoonDetailPrefix": "证书将在",
+      "detailSuffix": "到期",
+      "daysRemainingSuffix": "天"
+    },
+    "serviceIssueTexts": {
+      "downTitleSuffix": "服务异常",
+      "downDetailPrefix": "最近一次服务检查失败："
+    },
+    "domainIssueTexts": {
+      "expiredTitle": "域名已过期",
+      "expiringSoonTitle": "域名即将到期",
+      "expiredDetailPrefix": "域名已于",
+      "expiringSoonDetailPrefix": "域名将在",
+      "detailSuffix": "到期",
+      "daysRemainingSuffix": "天"
+    },
+    "searchConsoleIssueTexts": {
+      "clicksDropTitle": "搜索点击下滑",
+      "impressionsDropTitle": "搜索展示下滑",
+      "clicksDropDetailPrefix": "最近 30 天搜索点击较前 30 天下降",
+      "impressionsDropDetailPrefix": "最近 30 天搜索展示较前 30 天下降"
     }
   },
   "home": {
     "totals": {
       "healthySites": "正常",
       "degradedSites": "波动",
-      "downSites": "故障"
+      "downSites": "故障",
+      "serviceAlerts": "服务异常"
     },
     "starredAlerts": {
       "none": "无",
       "eyebrow": "Starred Alerts",
       "active": "星标异常",
       "allClear": "星标正常"
+    },
+    "issuesPanel": {
+      "eyebrow": "Needs Attention",
+      "title": "当前待处理事项",
+      "empty": "当前没有未解决 issue。",
+      "siteFallback": "未绑定站点",
+      "typeLabel": "类型"
+    },
+    "statusSummary": {
+      "title": "重点站点",
+      "issuesLabel": "未解决 Issues",
+      "servicesLabel": "服务异常",
+      "healthyServicesLabel": "服务正常",
+      "panelTitle": "组合盘概况",
+      "liveLabel": "实时"
+    },
+    "watchlist": {
+      "title": "站点清单",
+      "description": "首页直接带出每个站点的服务异常数，避免只看到站点在线却漏掉依赖服务异常。",
+      "status": "状态",
+      "services": "服务",
+      "serviceAlerts": "服务异常",
+      "panelTitle": "站点矩阵"
     },
     "actions": {
       "manageSites": "管理站点"
@@ -34,19 +92,26 @@
   "sitesPage": {
     "eyebrow": "Sites",
     "title": "站点监测配置",
-    "description": "站点页负责配置检测目标和频率。首页只做结果汇总，这里保留完整列表和手动检测入口。",
+    "description": "站点页负责配置检测目标、站点分类和接入服务。首页只做结果汇总，这里保留完整列表和站点资产入口。",
     "actions": {
       "runAll": "检测全部启用站点",
       "runNow": "立即检测",
       "addSite": "添加站点",
       "createSite": "创建新站点",
       "deleteSite": "删除站点",
+      "addService": "登记服务",
+      "saveService": "保存服务",
+      "editService": "编辑服务",
+      "cancelEdit": "取消编辑",
+      "deleteService": "删除服务",
+      "runServiceCheck": "检测服务",
       "hideForm": "收起表单",
       "expandRow": "展开详情",
       "collapseRow": "收起详情"
     },
     "confirmations": {
-      "deleteSite": "确认删除这个站点吗？相关检测历史也会一起删除。"
+      "deleteSite": "确认删除这个站点吗？相关检测历史也会一起删除。",
+      "deleteService": "确认删除这个已登记服务吗？相关服务状态记录也会一起删除。"
     },
     "summary": {
       "totalSites": "站点数",
@@ -54,13 +119,27 @@
       "alertSites": "异常站点",
       "lastCheck": "最近检测"
     },
+    "filters": {
+      "title": "筛选",
+      "siteType": "按站点类型",
+      "businessModel": "按商业模式",
+      "allSiteTypes": "全部类型",
+      "allBusinessModels": "全部模式",
+      "resultCount": "当前显示 {count} 个站点"
+    },
     "form": {
       "title": "新增监测站点",
-      "description": "每个站点会定期执行服务端 HTTP 可用性检测，并按域名补充 SSL 证书检查。",
+      "description": "每个站点会定期执行服务端 HTTP 可用性检测，并按域名补充 SSL 证书检查。现在也可以先记录站点类型和商业模式，为后续支付、订阅、SEO 等能力预留结构。",
       "fields": {
         "name": {
           "label": "站点名称",
           "placeholder": "例如：Main Site"
+        },
+        "siteType": {
+          "label": "站点类型"
+        },
+        "businessModel": {
+          "label": "商业模式"
         },
         "domain": {
           "label": "域名",
@@ -93,15 +172,19 @@
       "columns": {
         "site": "站点",
         "status": "状态",
+        "profile": "站点画像",
         "interval": "频率",
         "lastCheckedAt": "最近检测",
         "responseTime": "最近耗时",
         "checkUrl": "检测地址",
-        "ssl": "证书状态"
+        "ssl": "证书状态",
+        "services": "已接入服务"
       },
       "details": {
         "title": "最近检测详情",
+        "profileTitle": "站点画像",
         "sslTitle": "证书状态",
+        "servicesTitle": "已登记服务",
         "historyTitle": "最近延时历史",
         "statusCode": "状态码",
         "method": "方法",
@@ -117,11 +200,25 @@
         "sslError": "证书错误",
         "notes": "备注",
         "active": "监测状态",
+        "siteType": "站点类型",
+        "businessModel": "商业模式",
+        "serviceCategory": "服务类别",
+        "serviceProvider": "服务标识",
+        "serviceDisplayName": "显示名称",
+        "serviceStatus": "服务状态",
+        "serviceUpdatedAt": "最近状态时间",
+        "serviceCheckUrl": "检查地址",
+        "serviceInterval": "检查频率",
+        "serviceError": "服务错误",
+        "serviceNotes": "服务备注",
         "activeValue": "启用中",
         "inactiveValue": "已暂停",
+        "serviceActiveValue": "已登记",
+        "serviceInactiveValue": "已停用",
         "yes": "是",
         "no": "否",
         "noHistory": "还没有历史检测记录。",
+        "noServices": "这个站点还没有登记任何外部服务。",
         "latest": "最近一次",
         "responseUnit": "ms",
         "sslStates": {
@@ -132,16 +229,198 @@
           "mismatch": "域名不匹配",
           "error": "检测失败"
         }
+      },
+      "serviceForm": {
+        "title": "登记站点服务",
+        "description": "先把每个站点接了哪些支付、邮件、分析、认证或 CDN 服务记下来，后面就能围绕这些服务做健康检查和异常聚合。",
+        "editTitle": "编辑站点服务",
+        "fields": {
+          "category": {
+            "label": "服务类别"
+          },
+          "providerKey": {
+            "label": "服务标识",
+            "placeholder": "例如：stripe"
+          },
+          "displayName": {
+            "label": "显示名称",
+            "placeholder": "例如：Stripe Payments"
+          },
+          "healthCheckUrl": {
+            "label": "服务检查地址",
+            "placeholder": "例如：https://example.com/api/provider-health"
+          },
+          "checkInterval": {
+            "label": "服务检查频率"
+          },
+          "notes": {
+            "label": "服务备注",
+            "placeholder": "例如：主支付通道"
+          },
+          "isActive": {
+            "label": "登记后视为启用中"
+          }
+        }
       }
     },
     "star": {
       "starred": "已星标",
       "notStarred": "未星标"
+    },
+    "taxonomy": {
+      "siteTypes": {
+        "content": "内容站",
+        "subscription": "订阅站",
+        "commerce": "商业站",
+        "tool": "工具站",
+        "app": "应用站",
+        "leadgen": "获客站",
+        "other": "其他"
+      },
+      "businessModels": {
+        "ads": "广告",
+        "affiliate": "联盟分成",
+        "subscription": "订阅付费",
+        "one_time": "一次性付费",
+        "lead_generation": "线索获客",
+        "saas": "SaaS",
+        "internal": "内部项目",
+        "other": "其他"
+      },
+      "serviceCategories": {
+        "payment": "支付",
+        "analytics": "分析",
+        "email": "邮件",
+        "auth": "认证",
+        "cdn": "CDN",
+        "storage": "存储",
+        "search": "搜索",
+        "advertising": "广告",
+        "automation": "自动化",
+        "other": "其他"
+      },
+      "serviceHealth": {
+        "healthy": "正常",
+        "degraded": "降级",
+        "warning": "告警",
+        "down": "故障",
+        "unknown": "未检测"
+      }
     }
   },
   "siteActions": {
     "star": "星标",
     "unstar": "取消星标"
+  },
+  "siteDetailPage": {
+    "backToSites": "返回站点列表",
+    "overviewTitle": "站点概况",
+    "overviewDescription": "这里集中查看单个站点的健康状态、依赖服务和当前问题，不必在列表页里展开太多层。",
+    "editTitle": "编辑站点",
+    "saveSite": "保存站点",
+    "serviceManagementTitle": "管理服务",
+    "searchConsoleTitle": "Search Console",
+    "resolveIssue": "标记已解决",
+    "refreshDomain": "刷新域名信息",
+    "saveSearchConsole": "保存 Search Console",
+    "syncSearchConsole": "同步 Search Console",
+    "issueHistoryTitle": "Issue 历史",
+    "sections": {
+      "issues": "当前 Issues",
+      "issueHistory": "历史记录",
+      "searchConsole": "搜索趋势",
+      "http": "HTTP 检查",
+      "ssl": "证书状态",
+      "domain": "域名状态",
+      "services": "依赖服务",
+      "activity": "最近活动"
+    },
+    "summary": {
+      "status": "站点状态",
+      "siteType": "站点类型",
+      "businessModel": "商业模式",
+      "services": "服务总数",
+      "serviceAlerts": "服务异常",
+      "lastCheck": "最近检测"
+    },
+    "empty": {
+      "issues": "当前没有未解决 issue。",
+      "issueHistory": "当前没有符合筛选条件的 issue 历史。",
+      "searchConsole": "当前还没有 Search Console 日级数据。",
+      "services": "当前没有登记任何依赖服务。",
+      "activity": "当前还没有监控历史。"
+    },
+    "labels": {
+      "domain": "域名",
+      "checkUrl": "检测地址",
+      "interval": "检测频率",
+      "notes": "备注",
+      "active": "监测状态",
+      "starred": "星标状态",
+      "statusCode": "状态码",
+      "method": "方法",
+      "response": "响应耗时",
+      "checkedAt": "检测时间",
+      "sslExpiresAt": "证书到期",
+      "sslDaysRemaining": "剩余天数",
+      "sslIssuer": "颁发者",
+      "sslCommonName": "证书主域名",
+      "sslDomainMatch": "域名匹配",
+      "domainExpiresAt": "域名到期",
+      "domainDaysRemaining": "域名剩余天数",
+      "domainRegistrar": "注册商",
+      "domainLookup": "实际查询域名",
+      "domainAutoRenew": "自动续费",
+      "domainError": "RDAP 错误",
+      "issueDetectedAt": "发现时间",
+      "issueResolvedAt": "解决时间",
+      "issueDuration": "持续时间",
+      "issueStatus": "状态",
+      "searchConsoleProperty": "Property",
+      "searchConsoleStatus": "同步状态",
+      "searchConsoleLastSynced": "最近同步",
+      "searchConsoleSyncError": "同步错误",
+      "searchClicks": "点击",
+      "searchImpressions": "展示",
+      "searchCtr": "CTR",
+      "searchPosition": "平均排名",
+      "searchClicksDelta": "点击变化",
+      "searchImpressionsDelta": "展示变化",
+      "searchWindow": "趋势窗口",
+      "serviceCategory": "服务类别",
+      "serviceProvider": "服务标识",
+      "serviceCheckUrl": "服务检查地址",
+      "serviceStatus": "服务状态",
+      "serviceInterval": "服务频率",
+      "serviceLastCheck": "最近服务检查",
+      "serviceError": "服务错误"
+    },
+    "states": {
+      "active": "启用中",
+      "inactive": "已暂停",
+      "starred": "已星标",
+      "notStarred": "未星标",
+      "issueOpen": "未解决",
+      "issueResolved": "已解决",
+      "issueOngoing": "进行中",
+      "searchConsoleReady": "已连接",
+      "searchConsoleIdle": "未同步",
+      "searchConsoleError": "同步失败"
+    },
+    "filters": {
+      "allIssueTypes": "全部类型"
+    },
+    "searchConsole": {
+      "windowLabel": "最近 30 天",
+      "comparisonLabel": "对比前 30 天",
+      "propertyPlaceholder": "例如：https://example.com/ 或 sc-domain:example.com",
+      "clickSeriesLabel": "点击趋势",
+      "impressionSeriesLabel": "展示趋势",
+      "openInGoogleLabel": "前往 Search Console",
+      "deltaRise": "上升",
+      "deltaFall": "下降",
+      "deltaFlat": "持平"
+    }
   },
   "intervalOptions": [
     {

@@ -2,6 +2,11 @@
 
 ## Project Rules
 
+### Project Context
+- This is an open-source project.
+- Keep architecture, naming, and documentation understandable for public contributors and future readers.
+- Prefer generic examples and reusable patterns over project-specific shortcuts that are hard to explain publicly.
+
 ### Text Management
 - Do not hardcode reusable or user-facing copy in React components, layouts, or route handlers.
 - Store product copy, labels, button text, page descriptions, navigation text, empty states, and status text in JSON files under `/content`.
@@ -14,6 +19,7 @@
 
 ### Product Direction
 - This is a personal-use website operations dashboard.
+- The repository is open source even if the initial product workflow is optimized for personal use.
 - Prefer dense, practical information layouts over marketing-style whitespace.
 - The homepage should prioritize actionable issues before trends or vanity metrics.
 - The first monitoring version should use server-side HTTP checks from the deployed server.

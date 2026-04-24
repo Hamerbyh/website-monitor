@@ -3,6 +3,8 @@ import { z } from "zod";
 
 import { getServerEnv } from "@/lib/env";
 import { runChecksForDueSites } from "@/lib/monitor/site-check-store";
+import { runSearchConsoleSyncForDueSites } from "@/lib/monitor/site-search-console";
+import { runChecksForDueServices } from "@/lib/monitor/site-service-check-store";
 
 export const runtime = "nodejs";
 
@@ -38,13 +40,31 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const payload = requestSchema.parse(body);
 
-    const data = await runChecksForDueSites({
-      timeoutMs: payload.timeoutMs,
-    });
+    const [siteData, serviceData, searchConsoleData] = await Promise.all([
+      runChecksForDueSites({
+        timeoutMs: payload.timeoutMs,
+      }),
+      runChecksForDueServices({
+        timeoutMs: payload.timeoutMs,
+      }),
+      runSearchConsoleSyncForDueSites(),
+    ]);
 
     return NextResponse.json({
       ok: true,
-      ...data,
+      checkedAt: siteData.checkedAt,
+      checkedCount: siteData.checkedCount,
+      sslCheckedCount: siteData.sslCheckedCount,
+      domainCheckedCount: siteData.domainCheckedCount,
+      skippedCount: siteData.skippedCount,
+      serviceCheckedCount: serviceData.checkedCount,
+      serviceSkippedCount: serviceData.skippedCount,
+      searchConsoleCheckedCount: searchConsoleData.checkedCount,
+      searchConsoleSkippedCount: searchConsoleData.skippedCount,
+      searchConsoleSkippedReason: searchConsoleData.skippedReason,
+      siteResults: siteData.results,
+      serviceResults: serviceData.results,
+      searchConsoleResults: searchConsoleData.results,
     });
   } catch (error) {
     const message =

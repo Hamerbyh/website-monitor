@@ -33,6 +33,7 @@ export async function POST(request: Request) {
         site: data.site,
         result: data.result,
         sslResult: data.sslResult,
+        domainResult: data.domainResult,
       });
     }
 
