@@ -30,6 +30,23 @@ function parseJsonEnv(value: string | undefined, defaultValue: unknown) {
   return JSON.parse(value);
 }
 
+function parseStringListEnv(value: string | undefined) {
+  if (value === undefined || value.trim() === "") {
+    return [];
+  }
+
+  const trimmedValue = value.trim();
+
+  if (trimmedValue.startsWith("[")) {
+    return z.array(z.string().min(1)).parse(JSON.parse(trimmedValue));
+  }
+
+  return trimmedValue
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
 function parsePositiveIntegerEnv(
   value: string | undefined,
   defaultValue: number,
@@ -68,6 +85,8 @@ const serverEnvSchema = z.object({
   TELEGRAM_ALERT_ENABLED: z.boolean(),
   TELEGRAM_BOT_TOKEN: z.string().min(1).optional(),
   TELEGRAM_CHAT_ID: z.string().min(1).optional(),
+  DISCORD_ALERT_ENABLED: z.boolean(),
+  DISCORD_WEBHOOK_URLS: z.array(z.string().url()),
   POLYMARKET_MONITOR_ENABLED: z.boolean(),
   POLYMARKET_MONITOR_TARGETS: z.unknown(),
   POLYMARKET_MONITOR_LOOKBACK_MINUTES: z.number().int().positive(),
@@ -114,6 +133,11 @@ export function getServerEnv(): ServerEnv {
     ),
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID,
+    DISCORD_ALERT_ENABLED: parseBooleanEnv(
+      process.env.DISCORD_ALERT_ENABLED,
+      false,
+    ),
+    DISCORD_WEBHOOK_URLS: parseStringListEnv(process.env.DISCORD_WEBHOOK_URLS),
     POLYMARKET_MONITOR_ENABLED: parseBooleanEnv(
       process.env.POLYMARKET_MONITOR_ENABLED,
       false,

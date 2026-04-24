@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import polymarketContent from "@/content/polymarket.json";
 import { getServerEnv } from "@/lib/env";
+import { sendDiscordWebhookAlert } from "@/lib/notifications/discord-webhook-alert";
 import { sendTelegramAlert } from "@/lib/notifications/telegram-alert";
 
 const GAMMA_BASE_URL = "https://gamma-api.polymarket.com";
@@ -122,18 +123,26 @@ export async function runPolymarketDueChecks(input?: { now?: Date }) {
         results.push(result);
 
         if (result.alerted) {
-          try {
-            await sendTelegramAlert({
-              text: createTelegramMessage(result, now),
-            });
-          } catch (error) {
+          const message = createTelegramMessage(result, now);
+          const alertResults = await Promise.allSettled([
+            sendTelegramAlert({ text: message }),
+            sendDiscordWebhookAlert({ text: message }),
+          ]);
+
+          alertResults.forEach((alertResult, index) => {
+            if (alertResult.status === "fulfilled") {
+              return;
+            }
+
             errors.push({
               targetName: result.targetName,
-              error: `Telegram alert failed: ${
-                error instanceof Error ? error.message : "Unknown Telegram alert error"
+              error: `${index === 0 ? "Telegram" : "Discord"} alert failed: ${
+                alertResult.reason instanceof Error
+                  ? alertResult.reason.message
+                  : "Unknown alert error"
               }`,
             });
-          }
+          });
         }
       }
     } catch (error) {

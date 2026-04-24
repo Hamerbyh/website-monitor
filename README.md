@@ -416,6 +416,9 @@ TELEGRAM_ALERT_ENABLED=true
 TELEGRAM_BOT_TOKEN=123456:replace-with-bot-token
 TELEGRAM_CHAT_ID=-1001234567890
 
+DISCORD_ALERT_ENABLED=false
+DISCORD_WEBHOOK_URLS='["https://discord.com/api/webhooks/example"]'
+
 POLYMARKET_MONITOR_ENABLED=true
 POLYMARKET_MONITOR_LOOKBACK_MINUTES=60
 POLYMARKET_MONITOR_THRESHOLD_BPS=500
@@ -461,6 +464,7 @@ POLYMARKET_MONITOR_TARGETS='[
 - `eventSlug` 配合 `marketLabels` 可以只检查事件里的指定子市场，例如 `["OpenAI"]`
 - `outcome` 默认是 `Yes`
 - `notifyAlways=true` 时每次 cron 都会通知当前快照；不配置或为 `false` 时只在变化达到阈值后通知
+- `DISCORD_WEBHOOK_URLS` 支持 JSON 字符串数组，可把同一条 Polymarket 告警发到多个 Discord webhook
 
 Dokploy 中建议为 Polymarket 单独建一个 Cron Job，例如每 `5` 分钟触发一次：
 
