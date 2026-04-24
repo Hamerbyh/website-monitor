@@ -8,6 +8,10 @@ import { sendTelegramAlert } from "@/lib/notifications/telegram-alert";
 
 const GAMMA_BASE_URL = "https://gamma-api.polymarket.com";
 const CLOB_BASE_URL = "https://clob.polymarket.com";
+const POLYMARKET_REQUEST_HEADERS = {
+  Accept: "application/json",
+  "User-Agent": "WebMonitor/0.1 (+https://github.com/open-source)",
+} as const;
 
 const targetSchema = z.object({
   name: z.string().min(1).optional(),
@@ -115,13 +119,22 @@ export async function runPolymarketDueChecks(input?: { now?: Date }) {
       });
 
       for (const result of targetResults) {
-        if (result.alerted) {
-          await sendTelegramAlert({
-            text: createTelegramMessage(result, now),
-          });
-        }
-
         results.push(result);
+
+        if (result.alerted) {
+          try {
+            await sendTelegramAlert({
+              text: createTelegramMessage(result, now),
+            });
+          } catch (error) {
+            errors.push({
+              targetName: result.targetName,
+              error: `Telegram alert failed: ${
+                error instanceof Error ? error.message : "Unknown Telegram alert error"
+              }`,
+            });
+          }
+        }
       }
     } catch (error) {
       errors.push({
@@ -174,20 +187,22 @@ async function checkTarget(
     }
 
     const outcomeData = getOutcomeData(market, target.outcome);
-    const history = await fetchPriceHistory({
-      tokenId: outcomeData.tokenId,
-      now: defaults.now,
-      lookbackMinutes,
-    });
-    const previousPoint = findPreviousPoint(history, defaults.now, lookbackMinutes);
+    const currentPrice =
+      (await fetchMidpointPrice(outcomeData.tokenId)) ?? outcomeData.currentPrice;
+    const previousPrice =
+      target.notifyAlways === true
+        ? currentPrice
+        : await fetchPreviousPrice({
+            tokenId: outcomeData.tokenId,
+            now: defaults.now,
+            lookbackMinutes,
+          });
 
-    if (!previousPoint) {
+    if (previousPrice === null) {
       continue;
     }
 
-    const currentPrice =
-      (await fetchMidpointPrice(outcomeData.tokenId)) ?? outcomeData.currentPrice;
-    const change = currentPrice - previousPoint.p;
+    const change = currentPrice - previousPrice;
     const changeBps = Math.round(change * 10_000);
 
     const thresholdTriggered = Math.abs(changeBps) >= thresholdBps;
@@ -203,7 +218,7 @@ async function checkTarget(
       outcomePrices: outcomeData.outcomePrices,
       volume24hr: toNullableNumber(market.volume24hr),
       liquidity: toNullableNumber(market.liquidityNum ?? market.liquidity),
-      previousPrice: previousPoint.p,
+      previousPrice,
       currentPrice,
       change,
       changeBps,
@@ -214,6 +229,21 @@ async function checkTarget(
   }
 
   return results;
+}
+
+async function fetchPreviousPrice(input: {
+  tokenId: string;
+  now: Date;
+  lookbackMinutes: number;
+}) {
+  const history = await fetchPriceHistory(input);
+  const previousPoint = findPreviousPoint(
+    history,
+    input.now,
+    input.lookbackMinutes,
+  );
+
+  return previousPoint?.p ?? null;
 }
 
 function getTargetName(target: PolymarketTarget) {
@@ -264,9 +294,7 @@ async function resolveTargetMarkets(target: PolymarketTarget) {
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
+    headers: POLYMARKET_REQUEST_HEADERS,
   });
 
   if (!response.ok) {
@@ -282,9 +310,7 @@ async function fetchMidpointPrice(tokenId: string) {
   url.searchParams.set("token_id", tokenId);
 
   const response = await fetch(url, {
-    headers: {
-      Accept: "application/json",
-    },
+    headers: POLYMARKET_REQUEST_HEADERS,
   });
 
   if (!response.ok) {
@@ -310,7 +336,7 @@ async function fetchPriceHistory(input: {
   url.searchParams.set("startTs", startTs.toString());
   url.searchParams.set("endTs", endTs.toString());
   url.searchParams.set("interval", "1m");
-  url.searchParams.set("fidelity", "1");
+  url.searchParams.set("fidelity", "10");
 
   const data = await fetchJson<{ history?: PriceHistoryPoint[] }>(url.toString());
 
